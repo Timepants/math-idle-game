@@ -1,2 +1,15 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script>
+	import Addition from '../lib/components/Addition.svelte';
+  import Ticker from '../lib/components/Ticker.svelte';
+import GoodCounter from '../lib/components/GoodCounter.svelte';
+  import BadCounter from '../lib/components/BadCounter.svelte';
+  import Subtraction from '../lib/components/Subtraction.svelte';
+</script>
+
+<GoodCounter/>
+<BadCounter/>
+<Addition/>
+<br>
+<br>
+<Subtraction/>
+<Ticker/>
