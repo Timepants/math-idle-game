@@ -1,55 +1,46 @@
 <script>
   import { count } from "../stores/counter";
+  import { numOfAddends, maxAddendSize } from "../stores/gameState";
   import { getRandomInt } from "../utils/randomInt";
-  import { start, badStart } from '../stores/ticker';
+  import { goodStart, badStart } from "../stores/ticker";
+  import EquationAnswerBox from "./EquationAnswerBox.svelte";
 
   /**
    * @type {number[]}
    */
   let addends = [];
 
-  let num_of_addends = 5;
-
-  let max_addend_size = 99;
-
-  let sum = 0;
+  let correctAnswer = 0;
 
   const reset_equation = () => {
-    
+    correctAnswer = 0;
     addends = [];
-    for (let index = 0; index < num_of_addends; index++) {
-      addends.push(getRandomInt(max_addend_size));
+    for (let index = 0; index < $numOfAddends; index++) {
+      let random = getRandomInt($maxAddendSize);
+      correctAnswer += random;
+      addends.push(random);
     }
   };
 
   reset_equation();
 
-  const check_sum = () => {
-    let temp_sum = 0;
-    addends.forEach((addend) => {
-      temp_sum += addend;
-    });
-    if (temp_sum === sum) {
-      count.increment(sum);
-      start.reset();
+  const checkSum = (
+    /** @type {{ detail: { userAnswer: number; }; }} */ event
+  ) => {
+    if (correctAnswer === event.detail.userAnswer) {
+      count.increment(correctAnswer);
+      goodStart.reset();
     } else {
-      alert(`bad add ${temp_sum}`);
-      badStart.reset()
+      alert(`bad add ${correctAnswer}`);
+      badStart.reset();
     }
     reset_equation();
-    
-  };
-  const decrement = () => {
-    count.decrement(2);
   };
 </script>
 
-
-<br>
+<br />
 {#each addends as addend}
-    +{addend}
-    <br>
+  +{addend}
+  <br />
 {/each}
-<button on:click={check_sum}>+</button><input type="number" bind:value={sum} />
-<button on:click={decrement}>-</button>
-<button on:click={count.reset}>reset</button>
+<EquationAnswerBox on:checkAnswer={checkSum} {correctAnswer} />

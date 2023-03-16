@@ -1,50 +1,50 @@
 <script>
   import { badCount } from "../stores/counter";
   import { getRandomInt } from "../utils/randomInt";
-  import { badStart, start } from '../stores/ticker';
+  import { numOfSubtrahends, maxSubtrahendSize } from "../stores/gameState";
+  import { badStart, goodStart } from "../stores/ticker";
+  import EquationAnswerBox from "./EquationAnswerBox.svelte";
 
   /**
    * @type {number[]}
    */
   let subtrahends = [];
 
-  let num_of_subtrahends = 2;
-
-  let max_subtrahend_size = 500;
-
   let difference = 0;
+
+  let answer = 0;
 
   const reset_equation = () => {
     subtrahends = [];
-    for (let index = 0; index < num_of_subtrahends; index++) {
-      subtrahends.push(getRandomInt(max_subtrahend_size));
+    for (let index = 0; index < $numOfSubtrahends; index++) {
+      subtrahends.push(getRandomInt($maxSubtrahendSize));
     }
-    subtrahends.sort((a, b) => b - a);
+    if ($numOfSubtrahends <= 2) {
+      subtrahends.sort((a, b) => b - a);
+    }
+    for (let index = 0; index < $numOfSubtrahends; index++) {
+      answer = index === 0 ? subtrahends[index] : answer - subtrahends[index];
+    }
   };
 
   reset_equation();
 
-  const check_sum = () => {
-    let temp_difference = 0;
-    for (let index = 0; index < num_of_subtrahends; index++) {
-      if (index === 0){
-        temp_difference = subtrahends[index]
-      } else {
-        temp_difference -= subtrahends[index];
-      }
-    }
-    if (temp_difference === difference) {
-      badCount.decrement(difference);
+  const checkDifference = (
+    /** @type {{ detail: { userAnswer: number; }; }} */ event
+  ) => {
+    console.log(event, answer);
+    if (answer === event.detail.userAnswer) {
+      badCount.decrement(Math.abs(answer));
     } else {
-      alert(`bad subtract ${temp_difference}`);
-      badStart.reset()
+      alert(`bad subtract ${answer}`);
+      badStart.reset();
     }
     reset_equation();
   };
 </script>
 
-<button on:click={check_sum}>-</button>
 {#each subtrahends as subtrahend}
   {subtrahend}-
+  <br />
 {/each}
-<input type="number" bind:value={difference} />
+<EquationAnswerBox on:checkAnswer={checkDifference} correctAnswer={answer} />
