@@ -3,6 +3,8 @@
   import '$lib/style/dynamic_img.css';
   import { onMount } from 'svelte';
   import { clear_loops } from 'svelte/internal';
+  import { count } from '../stores/counter';
+
   const img_name = '000';
   const modules = import.meta.glob('$lib/assets/img/dinos/*.png');
   for (const key in modules) {
@@ -10,55 +12,23 @@
   }
 
   const animations = {
-    hop: [{}]
+    hop: [{}],
   };
+  function pad(num, size) {
+    num = num.toString();
+    while (num.length < size) num = '0' + num;
+    return num;
+  }
 
   /**
    * @type {any}
    */
   let canvas;
   onMount(() => {
-    const ctx = canvas.getContext('2d');
-    let frame = requestAnimationFrame(loop);
-    let img = new Image();
-    img.src = '/src/lib/assets/img/backgrounds/forest.png';
-    let dino = new Image();
-    let dinoState = {
-      startx: 308,
-      starty: 608,
-      x: 308,
-      y: 608,
-      animation_frame: 0,
-      animation_cycle: 0,
-      animation_type: 'hop'
-    };
-    dino.src = '/src/lib/assets/img/dinos/000.png';
-    // WAIT TILL IMAGE IS LOADED.
-    img.onload = function () {
-      fill_canvas(img, dino); // FILL THE CANVAS WITH THE IMAGE.
-    };
+    const bounceAnimation = (dinoState, animationInstructions) => {
+      const { direction, nextDirection, scalex, scaley, speed } =
+        animationInstructions;
 
-    /**
-     * @param {HTMLImageElement} img
-     * @param {HTMLImageElement} dino
-     */
-    function fill_canvas(img, dino) {
-      // CREATE CANVAS CONTEXT.
-      canvas.width = img.width;
-      canvas.height = img.height;
-
-      ctx.drawImage(img, 0, 0);
-      ctx.drawImage(dino, 308, 608, dino.width * 0.25, dino.height * 0.25); // DRAW THE IMAGE TO THE CANVAS.
-    }
-    let going_up = true;
-    const bounceAnimation = (
-      dinoState,
-      direction,
-      nextDirection,
-      scalex,
-      scaley,
-      speed
-    ) => {
       console.log(dinoState);
       const radions = dinoState.animation_frame * (Math.PI / 180);
       const y_val = Math.sin(radions) * (180 / Math.PI);
@@ -90,71 +60,239 @@
       return tempDinoState;
     };
 
-    bounceAnimationSequence = [
+    const bounceAnimationSequence = [
       {
         direction: 'f',
         nextDirection: 'f',
-        scalex: 1,
+        scalex: 0.7,
+        scaley: 1,
+        speed: 5,
+      },
+      {
+        direction: 'f',
+        nextDirection: 'f',
+        scalex: 0.7,
+        scaley: 1,
+        speed: 5,
+      },
+      {
+        direction: 'f',
+        nextDirection: 'b',
+        scalex: 0.5,
+        scaley: 1,
+        speed: 7,
+      },
+      {
+        direction: 'b',
+        nextDirection: 'b',
+        scalex: 0.5,
+        scaley: 1,
+        speed: 7,
+      },
+      {
+        direction: 'b',
+        nextDirection: 'f',
+        scalex: 0.9,
+        scaley: 1,
+        speed: 5,
+      },
+      {
+        direction: 'f',
+        nextDirection: 'f',
+        scalex: 0.5,
+        scaley: 1,
+        speed: 7,
+      },
+      {
+        direction: 'f',
+        nextDirection: 'b',
+        scalex: 0.5,
+        scaley: 1,
+        speed: 7,
+      },
+      {
+        direction: 'b',
+        nextDirection: 'b',
+        scalex: 1.5,
+        scaley: 1,
+        speed: 5,
+      },
+      {
+        direction: 'b',
+        nextDirection: 'f',
+        scalex: 0.5,
+        scaley: 1.5,
+        speed: 6,
+      },
+      {
+        direction: 'f',
+        nextDirection: 'f',
+        scalex: 0.5,
+        scaley: 0.5,
+        speed: 6,
+      },
+      {
+        direction: 'f',
+        nextDirection: 'f',
+        scalex: 0.2,
+        scaley: 0.5,
+        speed: 5,
+      },
+      {
+        direction: 'f',
+        nextDirection: 'f',
+        scalex: 0.2,
+        scaley: 0.2,
+        speed: 5,
+      },
+      {
+        direction: 'f',
+        nextDirection: 'f',
+        scalex: 0.2,
+        scaley: 0.5,
+        speed: 3,
+      },
+      {
+        direction: 'f',
+        nextDirection: 'f',
+        scalex: 0,
+        scaley: 0,
+        speed: 1,
+      },
+      {
+        direction: 'f',
+        nextDirection: 'f',
+        scalex: 0.2,
         scaley: 0.3,
-        speed: 5
-      }
+        speed: 6,
+      },
+      {
+        direction: 'f',
+        nextDirection: 'b',
+        scalex: 0.2,
+        scaley: 0.4,
+        speed: 4,
+      },
+      {
+        direction: 'b',
+        nextDirection: 'f',
+        scalex: 0.2,
+        scaley: 0.2,
+        speed: 5,
+      },
+      {
+        direction: 'f',
+        nextDirection: 'b',
+        scalex: 0.2,
+        scaley: 0.4,
+        speed: 6,
+      },
+      {
+        direction: 'b',
+        nextDirection: 'b',
+        scalex: 0.5,
+        scaley: 0.4,
+        speed: 5,
+      },
+      {
+        direction: 'b',
+        nextDirection: 'f',
+        scalex: 0.5,
+        scaley: 0.3,
+        speed: 7,
+      },
     ];
+    function createRandomDino() {
+      const startx = Math.random() * (1308 - 20) + 20;
+      // const starty = Math.random() * (2008 - 20) + 20;
+      const scale = Math.random() * (0.5 - 0.09) + 0.09;
+      const dinoState = {
+        imgNumber: Math.floor(Math.random() * 46),
+        // imgNumber: 1,
+        img: new Image(),
+        scale: scale,
+        startx: startx / scale,
+        x: startx / scale,
+        starty: 200 / scale + 950,
+        y: 200 / scale + 950,
+        // starty: 1500,
+        // y: 1500,
+        animation_frame: 0,
+        animation_cycle: Math.floor(
+          Math.random() * bounceAnimationSequence.length
+        ),
+        animation_type: 'hop',
+      };
+      console.log(dinoState.imgNumber);
+      dinoState.img.src = `/src/lib/assets/img/dinos/${pad(
+        dinoState.imgNumber,
+        3
+      )}.png`;
+
+      return dinoState;
+    }
+
+    /**
+     * @type {any[]}
+     */
+    const dinoStates = [];
+    for (let index = 0; index < 10; index++) {
+      dinoStates.push(createRandomDino());
+    }
+    dinoStates.sort((a, b) => a.scale - b.scale);
+    const ctx = canvas.getContext('2d');
+    let frame = requestAnimationFrame(loop);
+    let img = new Image();
+    img.src = '/src/lib/assets/img/backgrounds/forest.png';
+
+    // WAIT TILL IMAGE IS LOADED.
+    img.onload = function () {
+      fill_canvas(img); // FILL THE CANVAS WITH THE IMAGE.
+    };
+
+    /**
+     * @param {HTMLImageElement} img
+     */
+    function fill_canvas(img) {
+      // CREATE CANVAS CONTEXT.
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      ctx.drawImage(img, 0, 0);
+    }
+    let going_up = true;
 
     /**
      * @param {number} t
      */
     function loop(t) {
       frame = requestAnimationFrame(loop);
-      const radions = dinoState.animation_frame * (Math.PI / 180);
-      const y_val = Math.sin(radions) * (180 / Math.PI);
-      if (dinoState.animation_cycle === 4) {
-        dinoState.animation_cycle = 0;
-      }
-      if (dinoState.animation_cycle === 0) {
-        dinoState = bounceAnimation(dinoState, 'f', 'f', 1, 0.3, 5);
-      }
-      if (dinoState.animation_cycle === 1) {
-        dinoState = bounceAnimation(dinoState, 'f', 'b', 0.1, 0.3, 5);
-      }
-      if (dinoState.animation_cycle === 2) {
-        console.log('bb');
-        dinoState = bounceAnimation(dinoState, 'b', 'b', 1, 0.3, 5);
-      }
-      if (dinoState.animation_cycle === 3) {
-        console.log('bf');
-        dinoState = bounceAnimation(dinoState, 'b', 'f', 0.1, 0.3, 5);
-      }
-      //   going_up =
-      //     dinoState.animation_frame >= 180
-      //       ? false
-      //       : dinoState.animation_frame <= 0
-      //       ? true
-      //       : going_up;
+      // let dinoStates = [createRandomDino()];
 
       ctx.drawImage(img, 0, 0);
-      ctx.drawImage(
-        dino,
-        dinoState.x,
-        dinoState.y,
-        dino.width * 0.2,
-        dino.height * 0.2
-      );
+      for (let index = 0; index < dinoStates.length; index++) {
+        const radions = dinoStates[index].animation_frame * (Math.PI / 180);
+        const y_val = Math.sin(radions) * (180 / Math.PI);
+        if (
+          dinoStates[index].animation_cycle >= bounceAnimationSequence.length
+        ) {
+          dinoStates[index].animation_cycle = 0;
+        }
 
-      //   frame = requestAnimationFrame(loop);
-      //   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      //   for (let p = 0; p < imageData.data.length; p += 4) {
-      //     const i = p / 4;
-      //     const x = i % canvas.width;
-      //     const y = (i / canvas.width) >>> 0;
-      //     const r = 64 + (128 * x) / canvas.width + 64 * Math.sin(t / 1000);
-      //     const g = 64 + (128 * y) / canvas.height + 64 * Math.cos(t / 1000);
-      //     const b = 128;
-      //     imageData.data[p + 0] = r;
-      //     imageData.data[p + 1] = g;
-      //     imageData.data[p + 2] = b;
-      //     imageData.data[p + 3] = 255;
-      //   }
-      //   ctx.putImageData(imageData, 0, 0);
+        dinoStates[index] = bounceAnimation(
+          dinoStates[index],
+          bounceAnimationSequence[dinoStates[index].animation_cycle]
+        );
+        ctx.drawImage(
+          dinoStates[index].img,
+          dinoStates[index].x * dinoStates[index].scale,
+          dinoStates[index].y * dinoStates[index].scale,
+          dinoStates[index].img.width * dinoStates[index].scale,
+          dinoStates[index].img.height * dinoStates[index].scale
+        );
+        // const { direction } =
+        //   bounceAnimationSequence[dinoStates[index].animation_cycle];
+      }
     }
 
     return () => {
