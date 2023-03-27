@@ -110,7 +110,7 @@ const addition_dec_func = (
 
 export const itemsDefaults: IItems = {
   additionStart: {
-    itemName: 'Test Item One',
+    itemName: 'creates addition',
     type: 'hidden',
     isAvailable: true,
     availableAfter: { itemId: 'start', upgradeLevel: 0 },
@@ -127,14 +127,14 @@ export const itemsDefaults: IItems = {
     DecFunc: (item) => item
   },
   badStart: {
-    itemName: 'Test Item One',
+    itemName: 'creates something',
     type: 'hidden',
-    isAvailable: true,
-    availableAfter: { itemId: 'start', upgradeLevel: 0 },
+    isAvailable: false,
+    availableAfter: { itemId: 'test2', upgradeLevel: 1 },
     itemType: 'iteratable',
-    upgradeLevel: 1,
-    activeUpgradeLevel: 1,
-    forced: false,
+    upgradeLevel: 0,
+    activeUpgradeLevel: 0,
+    forced: true,
     currentCost: 0,
     currentGoodTicker: 0,
     currentBadTicker: 0.02,
@@ -144,7 +144,7 @@ export const itemsDefaults: IItems = {
     DecFunc: (item) => item
   },
   test1: {
-    itemName: 'Test Item One',
+    itemName: 'This one gives you automatic good ticker',
     type: 'plus',
     isAvailable: true,
     availableAfter: { itemId: 'start', upgradeLevel: 0 },
@@ -153,15 +153,15 @@ export const itemsDefaults: IItems = {
     activeUpgradeLevel: 0,
     forced: false,
     currentCost: 1,
-    currentGoodTicker: 0.009,
-    currentBadTicker: 0.002,
+    currentGoodTicker: 0,
+    currentBadTicker: 0,
     currentAdditionNumMod: 0,
     currentAdditionSizeMod: 0,
     IncFunc: (item) => standard_inc_func(0.009, 0.002, 0.5, item),
     DecFunc: (item) => item
   },
   test2: {
-    itemName: 'Test Item 2',
+    itemName: 'This gives you bigger numbers to add',
     type: 'plus_minus',
     isAvailable: true,
     availableAfter: { itemId: 'test1', upgradeLevel: 1 },
@@ -178,20 +178,37 @@ export const itemsDefaults: IItems = {
     DecFunc: (item) => addition_dec_func(0, 20, item)
   },
   test3: {
-    itemName: 'Test Item 3',
+    itemName: 'This gives you more numbers to add',
     type: 'plus_minus',
     isAvailable: false,
-    availableAfter: { itemId: 'test2', upgradeLevel: 20 },
+    availableAfter: { itemId: 'test2', upgradeLevel: 10 },
     itemType: 'iteratable',
     upgradeLevel: 0,
     activeUpgradeLevel: 0,
     forced: false,
-    currentCost: 1,
+    currentCost: 1000,
     currentGoodTicker: 0,
     currentAdditionNumMod: 0,
     currentAdditionSizeMod: 1,
     currentBadTicker: 0,
-    IncFunc: (item) => addition_inc_func(1, 0, 0.5, item),
+    IncFunc: (item) => addition_inc_func(1, 0, 3, item),
     DecFunc: (item) => addition_dec_func(1, 0, item)
+  },
+  test4: {
+    itemName: 'This one gives you automatic good ticker, but more',
+    type: 'plus',
+    isAvailable: false,
+    availableAfter: { itemId: 'test2', upgradeLevel: 1 },
+    itemType: 'iteratable',
+    upgradeLevel: 0,
+    activeUpgradeLevel: 0,
+    forced: false,
+    currentCost: 20,
+    currentGoodTicker: 0.009,
+    currentBadTicker: 0.002,
+    currentAdditionNumMod: 0,
+    currentAdditionSizeMod: 0,
+    IncFunc: (item) => standard_inc_func(0.01, 0.004, 0.7, item),
+    DecFunc: (item) => item
   }
 };

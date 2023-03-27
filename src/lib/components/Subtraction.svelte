@@ -1,9 +1,9 @@
 <script>
-  import { badCount } from "../stores/counter";
-  import { getRandomInt } from "../utils/randomInt";
-  import { numOfSubtrahends, maxSubtrahendSize } from "../stores/gameState";
-  import { badStart, goodStart } from "../stores/ticker";
-  import EquationAnswerBox from "./EquationAnswerBox.svelte";
+  import { badCount } from '../stores/counter';
+  import { getRandomInt } from '../utils/randomInt';
+  import { numOfSubtrahends, maxSubtrahendSize } from '../stores/gameState';
+  import { badStart, goodStart } from '../stores/ticker';
+  import EquationAnswerBox from './EquationAnswerBox.svelte';
 
   /**
    * @type {number[]}
@@ -32,7 +32,6 @@
   const checkDifference = (
     /** @type {{ detail: { userAnswer: number; }; }} */ event
   ) => {
-    console.log(event, answer);
     if (answer === event.detail.userAnswer) {
       badCount.decrement(Math.abs(answer));
     } else {
@@ -43,8 +42,40 @@
   };
 </script>
 
-{#each subtrahends as subtrahend}
-  {subtrahend}-
-  <br />
-{/each}
-<EquationAnswerBox on:checkAnswer={checkDifference} correctAnswer={answer} />
+<div class="equation-container">
+  <div class="addends">
+    {#each subtrahends as subtrahend, index}
+      {#if index !== 0}
+        <span class="plus">-</span>
+      {/if}
+      <span class="addend">{subtrahend}</span>
+    {/each}
+  </div>
+  <EquationAnswerBox on:checkAnswer={checkDifference} correctAnswer={answer} />
+</div>
+
+<style>
+  .equation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .addends {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: baseline;
+    font-size: 1.5rem;
+    /* margin-bottom: 1rem; */
+  }
+
+  .plus {
+    color: #333;
+  }
+
+  .addend {
+    font-weight: bold;
+    color: #333;
+  }
+</style>

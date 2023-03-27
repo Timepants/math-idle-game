@@ -1,9 +1,9 @@
 <script>
-  import { count } from "../stores/counter";
-  import { numOfAddends, maxAddendSize } from "../stores/gameState";
-  import { getRandomInt } from "../utils/randomInt";
-  import { goodStart, badStart } from "../stores/ticker";
-  import EquationAnswerBox from "./EquationAnswerBox.svelte";
+  import { count } from '../stores/counter';
+  import { numOfAddends, maxAddendSize } from '../stores/gameState';
+  import { getRandomInt } from '../utils/randomInt';
+  import { goodStart, badStart } from '../stores/ticker';
+  import EquationAnswerBox from './EquationAnswerBox.svelte';
 
   /**
    * @type {number[]}
@@ -38,9 +38,41 @@
   };
 </script>
 
-<br />
-{#each addends as addend}
-  +{addend}
-  <br />
-{/each}
-<EquationAnswerBox on:checkAnswer={checkSum} {correctAnswer} />
+<div class="equation-container">
+  <div class="addends">
+    {#each addends as addend, index}
+      {#if index !== 0}
+        <span class="plus">+</span>
+      {/if}
+      <span class="addend">{addend}</span>
+    {/each}
+  </div>
+  <EquationAnswerBox on:checkAnswer={checkSum} {correctAnswer} />
+</div>
+
+<style>
+  .equation-container {
+    font-family: 'Chalkboard SE', 'Marker Felt', 'Comic Sans MS', cursive;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .addends {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: baseline;
+    font-size: 1.5rem;
+    /* margin-bottom: 1rem; */
+  }
+
+  .plus {
+    color: #333;
+  }
+
+  .addend {
+    font-weight: bold;
+    color: #333;
+  }
+</style>

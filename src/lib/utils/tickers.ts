@@ -30,6 +30,7 @@ export const doTick = () => {
   let badElapsedValueFaultScale = 10;
   let maxBadElapsedValue = 2;
   let badTickerScaleValue = get(badTickerScale);
+
   if (badElapsedValue < maxBadElapsedValue) {
     badCount.increment(badTickerScaleValue * badElapsedValueFaultScale);
   } else {

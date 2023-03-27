@@ -1,4 +1,5 @@
 <script>
+  import bounceAnimationSequence from '$lib/assets/animation/bounceAnimationSequence';
   import background from '$lib/assets/img/backgrounds/forest.png';
   import '$lib/style/dynamic_img.css';
   import { onMount } from 'svelte';
@@ -12,7 +13,7 @@
   }
 
   const animations = {
-    hop: [{}],
+    hop: [{}]
   };
   function pad(num, size) {
     num = num.toString();
@@ -25,183 +26,51 @@
    */
   let canvas;
   onMount(() => {
+    const memoizedSin = (() => {
+      const cache = new Map();
+
+      return (angle) => {
+        if (cache.has(angle)) {
+          return cache.get(angle);
+        }
+        const radians = angle * (Math.PI / 180);
+        const result = Math.sin(radians) * (180 / Math.PI);
+        cache.set(angle, result);
+        return result;
+      };
+    })();
+
     const bounceAnimation = (dinoState, animationInstructions) => {
       const { direction, nextDirection, scalex, scaley, speed } =
         animationInstructions;
-
-      console.log(dinoState);
-      const radions = dinoState.animation_frame * (Math.PI / 180);
-      const y_val = Math.sin(radions) * (180 / Math.PI);
+      const y_val = memoizedSin(dinoState.animation_frame);
+      let going_up = direction === 'f';
       const tempDinoState = { ...dinoState };
-      if (direction === 'f') {
-        going_up = true;
-      } else {
-        going_up = false;
-      }
+
       tempDinoState.x =
         tempDinoState.startx +
-        (tempDinoState.animation_frame + (direction === 'f' ? 0 : 180)) *
-          scalex;
+        (tempDinoState.animation_frame + (going_up ? 0 : 180)) * scalex;
       tempDinoState.y = tempDinoState.starty - y_val * scaley;
+
       if (
-        (tempDinoState.animation_frame >= 180 && direction === 'f') ||
-        (tempDinoState.animation_frame <= -360 && direction === 'b')
+        (tempDinoState.animation_frame >= 180 && going_up) ||
+        (tempDinoState.animation_frame <= -360 && !going_up)
       ) {
         if (nextDirection === direction) {
+          // do nothing
         }
         tempDinoState.startx = dinoState.x;
-
         tempDinoState.animation_frame = nextDirection === 'f' ? 0 : -180;
         tempDinoState.animation_cycle += 1;
       }
+
       tempDinoState.animation_frame = going_up
         ? tempDinoState.animation_frame + speed
         : tempDinoState.animation_frame - speed;
+
       return tempDinoState;
     };
 
-    const bounceAnimationSequence = [
-      {
-        direction: 'f',
-        nextDirection: 'f',
-        scalex: 0.7,
-        scaley: 1,
-        speed: 5,
-      },
-      {
-        direction: 'f',
-        nextDirection: 'f',
-        scalex: 0.7,
-        scaley: 1,
-        speed: 5,
-      },
-      {
-        direction: 'f',
-        nextDirection: 'b',
-        scalex: 0.5,
-        scaley: 1,
-        speed: 7,
-      },
-      {
-        direction: 'b',
-        nextDirection: 'b',
-        scalex: 0.5,
-        scaley: 1,
-        speed: 7,
-      },
-      {
-        direction: 'b',
-        nextDirection: 'f',
-        scalex: 0.9,
-        scaley: 1,
-        speed: 5,
-      },
-      {
-        direction: 'f',
-        nextDirection: 'f',
-        scalex: 0.5,
-        scaley: 1,
-        speed: 7,
-      },
-      {
-        direction: 'f',
-        nextDirection: 'b',
-        scalex: 0.5,
-        scaley: 1,
-        speed: 7,
-      },
-      {
-        direction: 'b',
-        nextDirection: 'b',
-        scalex: 1.5,
-        scaley: 1,
-        speed: 5,
-      },
-      {
-        direction: 'b',
-        nextDirection: 'f',
-        scalex: 0.5,
-        scaley: 1.5,
-        speed: 6,
-      },
-      {
-        direction: 'f',
-        nextDirection: 'f',
-        scalex: 0.5,
-        scaley: 0.5,
-        speed: 6,
-      },
-      {
-        direction: 'f',
-        nextDirection: 'f',
-        scalex: 0.2,
-        scaley: 0.5,
-        speed: 5,
-      },
-      {
-        direction: 'f',
-        nextDirection: 'f',
-        scalex: 0.2,
-        scaley: 0.2,
-        speed: 5,
-      },
-      {
-        direction: 'f',
-        nextDirection: 'f',
-        scalex: 0.2,
-        scaley: 0.5,
-        speed: 3,
-      },
-      {
-        direction: 'f',
-        nextDirection: 'f',
-        scalex: 0,
-        scaley: 0,
-        speed: 1,
-      },
-      {
-        direction: 'f',
-        nextDirection: 'f',
-        scalex: 0.2,
-        scaley: 0.3,
-        speed: 6,
-      },
-      {
-        direction: 'f',
-        nextDirection: 'b',
-        scalex: 0.2,
-        scaley: 0.4,
-        speed: 4,
-      },
-      {
-        direction: 'b',
-        nextDirection: 'f',
-        scalex: 0.2,
-        scaley: 0.2,
-        speed: 5,
-      },
-      {
-        direction: 'f',
-        nextDirection: 'b',
-        scalex: 0.2,
-        scaley: 0.4,
-        speed: 6,
-      },
-      {
-        direction: 'b',
-        nextDirection: 'b',
-        scalex: 0.5,
-        scaley: 0.4,
-        speed: 5,
-      },
-      {
-        direction: 'b',
-        nextDirection: 'f',
-        scalex: 0.5,
-        scaley: 0.3,
-        speed: 7,
-      },
-    ];
     function createRandomDino() {
       const startx = Math.random() * (1308 - 20) + 20;
       // const starty = Math.random() * (2008 - 20) + 20;
@@ -215,15 +84,15 @@
         x: startx / scale,
         starty: 200 / scale + 950,
         y: 200 / scale + 950,
+        opacity: 0,
         // starty: 1500,
         // y: 1500,
         animation_frame: 0,
         animation_cycle: Math.floor(
           Math.random() * bounceAnimationSequence.length
         ),
-        animation_type: 'hop',
+        animation_type: 'hop'
       };
-      console.log(dinoState.imgNumber);
       dinoState.img.src = `/src/lib/assets/img/dinos/${pad(
         dinoState.imgNumber,
         3
@@ -236,10 +105,7 @@
      * @type {any[]}
      */
     const dinoStates = [];
-    for (let index = 0; index < 10; index++) {
-      dinoStates.push(createRandomDino());
-    }
-    dinoStates.sort((a, b) => a.scale - b.scale);
+
     const ctx = canvas.getContext('2d');
     let frame = requestAnimationFrame(loop);
     let img = new Image();
@@ -250,6 +116,34 @@
       fill_canvas(img); // FILL THE CANVAS WITH THE IMAGE.
     };
 
+    let prevCount = 0;
+
+    const updateDino = (newCount) => {
+      if (newCount > prevCount) {
+        let nOfRuns = Math.floor((newCount - prevCount) / 30);
+        if (nOfRuns > 0) {
+          for (let index = 0; index < nOfRuns; index++) {
+            const newDino = createRandomDino();
+            dinoStates.push(newDino);
+          }
+
+          prevCount = newCount;
+          dinoStates.sort((a, b) => a.scale - b.scale);
+        }
+      } else if (newCount < prevCount && dinoStates.length > 0) {
+        let nOfRuns = Math.floor((prevCount - newCount) / 30);
+        if (prevCount * 0.6 > newCount) {
+          let nOfRuns = Math.floor(dinoStates.length * 0.5);
+        }
+        for (let index = 0; index < nOfRuns; index++) {
+          const randomIndex = Math.floor(Math.random() * dinoStates.length);
+          dinoStates.splice(randomIndex, 1);
+        }
+        prevCount = newCount;
+      }
+    };
+
+    count.subscribe(updateDino);
     /**
      * @param {HTMLImageElement} img
      */
@@ -283,6 +177,9 @@
           dinoStates[index],
           bounceAnimationSequence[dinoStates[index].animation_cycle]
         );
+        dinoStates[index].opacity =
+          dinoStates[index].opacity < 1 ? dinoStates[index].opacity + 0.01 : 1;
+        ctx.globalAlpha = dinoStates[index].opacity;
         ctx.drawImage(
           dinoStates[index].img,
           dinoStates[index].x * dinoStates[index].scale,
@@ -290,6 +187,7 @@
           dinoStates[index].img.width * dinoStates[index].scale,
           dinoStates[index].img.height * dinoStates[index].scale
         );
+        ctx.globalAlpha = 1;
         // const { direction } =
         //   bounceAnimationSequence[dinoStates[index].animation_cycle];
       }
@@ -306,10 +204,6 @@
 <style>
   canvas {
     width: 100%;
-    height: 100%;
-    /* background-color: #666;
-    background-image: url(/src/lib/assets/img/backgrounds/forest.png);
-    -webkit-mask: url(/src/lib/assets/img/dinos/000.png) 50% 50% no-repeat;
-    mask: url(/src/lib/assets/img/dinos/000.png) 50% 50% no-repeat; */
+    /* padding-bottom: 75%; */
   }
 </style>

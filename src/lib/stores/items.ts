@@ -32,7 +32,6 @@ const checkIfNewItemAvailable = (items: IItems, itemId: string) => {
 };
 
 const incrementItem = (items: IItems, itemId: string) => {
-  console.log('update item');
   const updated_items = {
     ...items,
     [itemId]: {
@@ -47,7 +46,6 @@ const incrementItem = (items: IItems, itemId: string) => {
 };
 
 const decrementItem = (items: IItems, itemId: string) => {
-  console.log('dec item');
   const updated_items = {
     ...items,
     [itemId]: {
