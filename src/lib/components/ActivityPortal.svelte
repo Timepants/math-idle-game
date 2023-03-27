@@ -1,4 +1,5 @@
 <script>
+  import { base } from '$app/paths';
   import bounceAnimationSequence from '$lib/assets/animation/bounceAnimationSequence';
   import background from '$lib/assets/img/backgrounds/forest.png';
   import '$lib/style/dynamic_img.css';
@@ -93,7 +94,7 @@
         ),
         animation_type: 'hop'
       };
-      dinoState.img.src = `/src/lib/assets/img/dinos/${pad(
+      dinoState.img.src = `${base}/img/dinos/${pad(
         dinoState.imgNumber,
         3
       )}.png`;
@@ -109,7 +110,7 @@
     const ctx = canvas.getContext('2d');
     let frame = requestAnimationFrame(loop);
     let img = new Image();
-    img.src = '/src/lib/assets/img/backgrounds/forest.png';
+    img.src = `${base}/img/backgrounds/forest.png`;
 
     // WAIT TILL IMAGE IS LOADED.
     img.onload = function () {
